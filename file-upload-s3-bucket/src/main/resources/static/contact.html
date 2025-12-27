@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <title>Contact - S3 File Manager</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: aliceblue;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1em;
+            display: flex;
+            align-items: center;
+        }
+        #logo {
+            height: 40px;
+            margin-right: 1em;
+        }
+        header h1 {
+            margin: 0;
+            flex-grow: 1;
+        }
+        nav {
+            margin: 0 1em;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+        }
+        nav a:hover {
+            background-color: #555;
+        }
+        main {
+            flex: 1;
+            padding: 2em;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            margin-top: auto;
+        }
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            max-width: 500px;
+        }
+        .contact-form input, .contact-form textarea {
+            padding: 0.5em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .contact-form button {
+            padding: 0.7em;
+            background-color: #00008B;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .contact-form button:hover {
+            background-color: #0000CD;
+        }
+        .breadcrumb {
+            margin-bottom: 1.5em;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .breadcrumb a {
+            color: #00008B;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.svg" alt="Logo" id="logo">
+        <h1>S3 File Manager</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+    <main>
+        <div class="breadcrumb">
+            <a href="index.html">Home</a> &gt; <span>Contact</span>
+        </div>
+        <h2>Contact Us</h2>
+        <p>If you have any questions, please fill out the form below.</p>
+        <form class="contact-form" onsubmit="alert('Thank you for your message!'); return false;">
+            <input type="text" placeholder="Your Name" required>
+            <input type="email" placeholder="Your Email" required>
+            <textarea rows="5" placeholder="Your Message" required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2025 S3 File Manager</p>
+    </footer>
+</body>
+</html>

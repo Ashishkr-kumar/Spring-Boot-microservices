@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <title>About - S3 File Manager</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: aliceblue;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1em;
+            display: flex;
+            align-items: center;
+        }
+        #logo {
+            height: 40px;
+            margin-right: 1em;
+        }
+        header h1 {
+            margin: 0;
+            flex-grow: 1;
+        }
+        nav {
+            margin: 0 1em;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+        }
+        nav a:hover {
+            background-color: #555;
+        }
+        main {
+            flex: 1;
+            padding: 2em;
+        }
+        .breadcrumb {
+            margin-bottom: 1.5em;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .breadcrumb a {
+            color: #00008B;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.svg" alt="Logo" id="logo">
+        <h1>S3 File Manager</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+    <main>
+        <div class="breadcrumb">
+            <a href="index.html">Home</a> &gt; <span>About</span>
+        </div>
+        <h2>About Us</h2>
+        <p>This application is a simple file manager for Amazon S3, created to demonstrate file upload, download, and listing capabilities in a Spring Boot application.</p>
+        <p>It allows users to easily manage files stored in an S3 bucket through a user-friendly web interface.</p>
+    </main>
+    <footer>
+        <p>&copy; 2025 S3 File Manager</p>
+    </footer>
+</body>
+</html>

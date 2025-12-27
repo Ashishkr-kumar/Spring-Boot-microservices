@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <title>S3 File Manager</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: aliceblue;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1em;
+            display: flex;
+            align-items: center;
+        }
+        #logo {
+            height: 40px;
+            margin-right: 1em;
+        }
+        header h1 {
+            margin: 0;
+            flex-grow: 1;
+        }
+        nav {
+            margin: 0 1em;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+        }
+        nav a:hover {
+            background-color: #555;
+        }
+        main {
+            flex: 1;
+            padding: 2em;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            margin-top: auto;
+        }
+        #fileTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #fileTable th, #fileTable td {
+            border: 1px solid #ccc;
+            padding: 0.5em;
+            text-align: left;
+        }
+        #fileTable th {
+            background-color: #f2f2f2;
+        }
+        .icon-group img {
+            cursor: pointer;
+            margin: 0 0.5em;
+            width: 16px;
+            height: 16px;
+        }
+        #uploadBtn {
+            background-color: #00008B;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 700px;
+        }
+        #imageToCrop {
+            max-width: 100%;
+        }
+        .breadcrumb {
+            margin-bottom: 1.5em;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .breadcrumb a {
+            color: #00008B;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.svg" alt="Logo" id="logo">
+        <h1>S3 File Manager</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="gallery.html">Gallery</a>
+        </nav>
+    </header>
+    <main>
+        <div class="breadcrumb">
+            <span>Home</span>
+        </div>
+        <h2>Upload File</h2>
+        <form id="uploadForm">
+            <input type="file" name="file" id="fileInput" required>
+            <button id="uploadBtn" type="submit">Upload</button>
+        </form>
+
+        <h2>Uploaded Files</h2>
+        <table id="fileTable">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>File Name</th>
+                    <th>File Size</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="fileList"></tbody>
+        </table>
+    </main>
+
+    <div id="cropModal" class="modal">
+        <div class="modal-content">
+            <h2>Crop Image</h2>
+            <div>
+                <img id="imageToCrop" src="">
+            </div>
+            <button id="cropAndUploadBtn">Crop & Upload</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 S3 File Manager</p>
+    </footer>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const cropModal = document.getElementById('cropModal');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const cropAndUploadBtn = document.getElementById('cropAndUploadBtn');
+        let cropper;
+        let originalFileName;
+
+        // This listener triggers when a file is selected.
+        fileInput.addEventListener('change', (event) => {
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                originalFileName = files[0].name;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imageToCrop.src = e.target.result;
+                    cropModal.style.display = 'block';
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                    });
+                };
+                reader.readAsDataURL(files[0]);
+            }
+        });
+
+        // This listener is for the "Crop & Upload" button inside the modal.
+        cropAndUploadBtn.addEventListener('click', () => {
+            if (cropper) {
+                cropper.getCroppedCanvas({
+                    width: 512,
+                    height: 512,
+                }).toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append('file', blob, originalFileName);
+
+                    try {
+                        const response = await fetch('/file/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (response.ok) {
+                            alert('File uploaded successfully!');
+                            fetchFiles(); // Refresh the file list
+                        } else {
+                            alert('File upload failed.');
+                        }
+                    } catch (error) {
+                        console.error('Error uploading file:', error);
+                        alert('An error occurred during file upload.');
+                    } finally {
+                        cropModal.style.display = 'none';
+                        uploadForm.reset();
+                    }
+                });
+            }
+        });
+
+        // Fetch and display the list of files
+        async function fetchFiles() {
+            try {
+                const response = await fetch('/file/list');
+                const files = await response.json();
+                fileList.innerHTML = ''; // Clear existing list
+                files.forEach((file, index) => {
+                    const row = document.createElement('tr');
+
+                    const sno = document.createElement('td');
+                    sno.textContent = index + 1;
+
+                    const fileName = document.createElement('td');
+                    fileName.textContent = file.name;
+
+                    const fileSize = document.createElement('td');
+                    fileSize.textContent = formatBytes(file.size);
+
+                    const action = document.createElement('td');
+                    const iconGroup = document.createElement('div');
+                    iconGroup.className = 'icon-group';
+
+                    const downloadIcon = document.createElement('img');
+                    downloadIcon.src = 'download-icon.svg';
+                    downloadIcon.alt = 'Download';
+                    downloadIcon.onclick = () => downloadFile(file.name);
+
+                    const deleteIcon = document.createElement('img');
+                    deleteIcon.src = 'delete-icon.svg';
+                    deleteIcon.alt = 'Delete';
+                    deleteIcon.onclick = () => deleteFile(file.name);
+
+                    iconGroup.appendChild(downloadIcon);
+                    iconGroup.appendChild(deleteIcon);
+                    action.appendChild(iconGroup);
+
+                    row.appendChild(sno);
+                    row.appendChild(fileName);
+                    row.appendChild(fileSize);
+                    row.appendChild(action);
+
+                    fileList.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching files:', error);
+                alert('Failed to fetch files.');
+            }
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Handle file download
+        function downloadFile(fileName) {
+            window.location.href = `/file/download?fileName=${encodeURIComponent(fileName)}`;
+        }
+
+        // Handle file deletion
+        async function deleteFile(fileName) {
+            if (confirm(`Are you sure you want to delete ${fileName}?`)) {
+                try {
+                    const response = await fetch(`/file/delete?fileName=${encodeURIComponent(fileName)}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        alert('File deleted successfully!');
+                        fetchFiles(); // Refresh the file list
+                    } else {
+                        alert('File deletion failed.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting file:', error);
+                    alert('An error occurred during file deletion.');
+                }
+            }
+        }
+
+        // Initial fetch of files when the page loads
+        fetchFiles();
+    </script>
+</body>
+</html>

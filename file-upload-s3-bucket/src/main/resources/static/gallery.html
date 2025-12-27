@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <title>Gallery - S3 File Manager</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: aliceblue;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1em;
+            display: flex;
+            align-items: center;
+        }
+        #logo {
+            height: 40px;
+            margin-right: 1em;
+        }
+        header h1 {
+            margin: 0;
+            flex-grow: 1;
+        }
+        nav {
+            margin: 0 1em;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+        }
+        nav a:hover {
+            background-color: #555;
+        }
+        main {
+            flex: 1;
+            padding: 2em;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            margin-top: auto;
+        }
+        #galleryContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5em;
+        }
+        .gallery-card {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 200px;
+            height: 200px; /* Set a fixed height for a square aspect ratio */
+            overflow: hidden; /* Ensures the image respects the rounded corners */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1em;
+            /* Add this line for the animation effect */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .gallery-card:hover {
+            /* This makes the card grow slightly */
+            transform: scale(1.05);
+            /* This enhances the shadow */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .gallery-card img.file-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Scales the image to fill the container without distortion */
+            margin-bottom: 1em;
+        }
+        .gallery-card .file-name {
+            font-weight: bold;
+            margin-bottom: 0.5em;
+            word-break: break-all;
+            text-align: center;
+        }
+        .gallery-card .file-date {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 1em;
+        }
+        .icon-group img {
+            cursor: pointer;
+            margin: 0 0.5em;
+            width: 16px;
+            height: 16px;
+        }
+        .breadcrumb {
+            margin-bottom: 1.5em;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .breadcrumb a {
+            color: #00008B;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.svg" alt="Logo" id="logo">
+        <h1>S3 File Manager</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="gallery.html">Gallery</a>
+        </nav>
+    </header>
+    <main>
+        <div class="breadcrumb">
+            <a href="index.html">Home</a> &gt; <span>Gallery</span>
+        </div>
+        <h2>File Gallery</h2>
+        <div id="galleryContainer"></div>
+    </main>
+    <footer>
+        <p>&copy; 2025 S3 File Manager</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchFiles);
+
+        async function fetchFiles() {
+    try {
+        const response = await fetch('/file/list');
+        const files = await response.json();
+        const galleryContainer = document.getElementById('galleryContainer');
+        galleryContainer.innerHTML = ''; // Clear existing list
+
+        files.forEach(file => {
+            const card = document.createElement('div');
+            card.className = 'gallery-card';
+
+            const fileImage = document.createElement('img');
+            fileImage.className = 'file-icon';
+            fileImage.src = `/file/download?fileName=${encodeURIComponent(file.name)}`;
+            
+            card.appendChild(fileImage);
+
+            galleryContainer.appendChild(card);
+        });
+    } catch (error) {
+        console.error('Error fetching files:', error);
+        alert('Failed to fetch files for the gallery.');
+    }
+}
+
+        function downloadFile(fileName) {
+            window.location.href = `/file/download?fileName=${encodeURIComponent(fileName)}`;
+        }
+
+        async function deleteFile(fileName) {
+            if (confirm(`Are you sure you want to delete ${fileName}?`)) {
+                try {
+                    const response = await fetch(`/file/delete?fileName=${encodeURIComponent(fileName)}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        alert('File deleted successfully!');
+                        fetchFiles(); // Refresh the gallery
+                    } else {
+                        alert('File deletion failed.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting file:', error);
+                    alert('An error occurred during file deletion.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
