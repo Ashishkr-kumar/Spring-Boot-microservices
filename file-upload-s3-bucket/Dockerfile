@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-slim
+FROM eclipse-temurin:17-jre-alpine
 ARG AWS_ACCESS_KEY_ID
 ARG AWS_SECRET_ACCESS_KEY
 
