@@ -1,18 +1,7 @@
-# Use a base image with Java 17 JRE
-FROM eclipse-temurin:17-jre-jammy
-
-# Set the working directory inside the container
-WORKDIR /app
-
-# Argument to specify the JAR file path.
-# This makes it easier to specify the jar file at build time if needed.
-ARG JAR_FILE=target/*.jar
-
-# Copy the executable JAR file from the host to the container
-COPY ${JAR_FILE} app.jar
-
-# Expose the port the application will run on
+FROM openjdk:17.0.9-jdk-slim
+RUN mkdir -p /opt/app
+ENV PROJECT_HOME /opt/app
+COPY ./target/file-upload-s3-bucket-0.0.1-SNAPSHOT.jar $PROJECT_HOME/file-upload-s3-bucket.jar
+WORKDIR $PROJECT_HOME
 EXPOSE 8080
-
-# Command to run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "./file-upload-s3-bucket.jar"]
